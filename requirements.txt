@@ -1,7 +1,5 @@
 flet
-opencv-python-headless
-torch --index-url https://download.pytorch.org/whl/cpu
-torchvision --index-url https://download.pytorch.org/whl/cpu
+opencv-python
 pillow
-ultralytics
 numpy
+ultralytics
