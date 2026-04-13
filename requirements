@@ -1,0 +1,7 @@
+flet
+opencv-python
+torch
+torchvision
+pillow
+ultralytics
+numpy
