@@ -18,8 +18,15 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Set UTF-8 encoding
+        run: |
+          chcp 65001
+          echo "PYTHONUTF8=1" >> $env:GITHUB_ENV
+          echo "PYTHONIOENCODING=utf-8" >> $env:GITHUB_ENV
+
       - name: Install dependencies
         run: |
+          pip install --upgrade pip
           pip install flet
           pip install opencv-python
           pip install pillow
