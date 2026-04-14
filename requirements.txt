@@ -1,5 +1,4 @@
 flet
 opencv-python
-pillow
 numpy
-ultralytics
+tensorflow
