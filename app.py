@@ -1,33 +1,33 @@
 import flet as ft
 import cv2
 import numpy as np
-import tflite_runtime.interpreter as tflite
+import onnxruntime as ort
 import threading
 import time
 
-# ================== 加载 TFLite 模型 ==================
-interpreter = tflite.Interpreter(model_path="model_float32.tflite")
-interpreter.allocate_tensors()
+# ================== 加载 ONNX 模型 ==================
+# 确保 model.onnx 文件在项目根目录
+sess = ort.InferenceSession("model.onnx")
 
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
+# 获取输入输出信息（可选）
+input_name = sess.get_inputs()[0].name
+output_name = sess.get_outputs()[0].name
 
 class_names = ["100yuan", "10yuan", "1yuan", "20yuan", "50yuan", "5yuan"]
 
 def preprocess_image(frame):
-    """预处理图像：resize + 归一化"""
+    """预处理图像：resize + 归一化 + 转换维度 (NHWC -> NCHW)"""
     img = cv2.resize(frame, (224, 224))
     img = img.astype(np.float32) / 255.0
-    img = np.expand_dims(img, axis=0)
+    # 添加 batch 维度并转换通道顺序 (H, W, C) -> (1, C, H, W)
+    img = np.expand_dims(img, axis=0).transpose(0, 3, 1, 2)
     return img
 
 def predict(frame):
     """推理"""
     input_data = preprocess_image(frame)
-    interpreter.set_tensor(input_details[0]['index'], input_data)
-    interpreter.invoke()
-    output = interpreter.get_tensor(output_details[0]['index'])
-    pred_idx = np.argmax(output[0])
+    outputs = sess.run([output_name], {input_name: input_data})
+    pred_idx = np.argmax(outputs[0][0])
     return class_names[pred_idx]
 
 # ================== UI界面 ==================
@@ -92,10 +92,13 @@ def recognition_loop(page: ft.Page, result_text, status_text):
                 speak(show_text)
                 last_spoken = detected
         else:
+            # 可选：显示正在稳定中
             result_text.value = "未稳定..."
             page.update()
 
         time.sleep(0.1)
+
+    cap.release()
 
 def speak(text):
     """语音播报（Termux 或 Android）"""
