@@ -1,12 +1,12 @@
 import flet as ft
 import cv2
 import numpy as np
-import tensorflow as tf
+import tflite_runtime.interpreter as tflite
 import threading
 import time
 
 # ================== 加载 TFLite 模型 ==================
-interpreter = tf.lite.Interpreter(model_path="model.tflite")
+interpreter = tflite.Interpreter(model_path="model_float32.tflite")
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
