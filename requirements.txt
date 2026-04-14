@@ -1,4 +1,4 @@
 flet
 opencv-python
 numpy
-tensorflow
+tflite-runtime
